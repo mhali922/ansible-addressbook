@@ -1,0 +1,17 @@
+- hosts: webserver
+  become: true
+  become_user: root
+  tasks:
+  - name: Install Git and Docker
+    yum: name={{item}} state=present
+    with_items:
+    - docker
+    - git
+  - name: Start Docker
+    service: name=docker state=started
+  - name: clone git repo
+    git: repo=https://github.com/mhali922/ansible-addressbook.git dest=/tmp/gitrepo4
+  - name: build dockerfile
+    command: chdir=/tmp/gitrepo4 docker build -t myimage:ansible_ali .
+  - name: Run the image to deploy the application
+    command: docker run -itd -P myimage:ansible_ali
